@@ -5,5 +5,19 @@
     "make": "Audi",
     "model": "blaugh",
     "trim": "123"
+  },
+  {
+    "id": 2,
+    "year": 1999,
+    "make": "Audi",
+    "model": "blaugh",
+    "trim": "123"
+  },
+  {
+    "id": 3,
+    "year": 2009,
+    "make": "Volkswaegen",
+    "model": "blaugh",
+    "trim": "123"
   }
 ]
