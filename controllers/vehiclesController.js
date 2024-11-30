@@ -53,8 +53,8 @@ const addVehicle = async (req, res) => {
     }
   } catch (e) {
     res.status(500).json({
-      error: "Internal Server Error.",
-      message: "Internal Server Error.",
+      message: "Internal Server Error. Unable to add vehicle.",
+      error: e,
     });
   }
 };
@@ -77,8 +77,8 @@ const getVehicles = async (req, res) => {
     res.status(200).json({ vehicles });
   } catch (e) {
     res.status(500).json({
-      error: "Internal Server Error.",
-      message: "Internal Server Error.",
+      message: "Internal Server Error. Unable to get vehicle list.",
+      error: e,
     });
   }
 };
@@ -90,7 +90,69 @@ const updateVehicle = async (req, res) => {
 
 const deleteVehicle = async (req, res) => {
   try {
-  } catch (e) {}
+    const vehicleId = parseInt(req.params.id);
+
+    if (!vehicleId) {
+      return res.status(400).json({
+        error: e,
+        message:
+          "Missing vehicle ID. Please provide the vehicle ID as a request parameter.",
+      });
+    }
+
+    let vehicles = [];
+
+    try {
+      const vehiclesData = await fs.readFileSync(jsonPath, "utf8");
+      vehicles = JSON.parse(vehiclesData);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({
+        error: "Unable to read file.",
+        message: err.message,
+      });
+    }
+
+    const findVehicle = vehicles.find((vehicle) => vehicle.id === vehicleId);
+
+    if (!findVehicle) {
+      return res.status(404).json({
+        error: "Vehicle not found.",
+        message: `Vehicle with ID ${vehicleId} not found.`,
+      });
+    }
+
+    let vehicleFilter = [];
+    vehicles.forEach((vehicle) => {
+      if (vehicle.id !== vehicleId) {
+        vehicleFilter.push(vehicle);
+      }
+    });
+
+    fs.writeFile(
+      jsonPath,
+      JSON.stringify(vehicleFilter, null, 2),
+      "utf8",
+      (err) => {
+        if (err) {
+          console.error("Error writing to file:", err);
+          return res.status(500).json({
+            error: "Unable to write to file.",
+            message: err.message,
+          });
+        }
+
+        return res.status(200).json({
+          message: `Successfully deleted vehicle with ID ${vehicleId}.`,
+        });
+      }
+    );
+  } catch (e) {
+    res.status(500).json({
+      message: "Internal Server Error. Unable to delete vehicle.",
+      error: e,
+    });
+  }
 };
 
 export { addVehicle, getVehicles, updateVehicle, deleteVehicle };

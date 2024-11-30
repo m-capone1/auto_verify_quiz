@@ -1,44 +1,9 @@
 [
   {
-    "id": 1,
-    "year": 2023,
-    "make": "Toyota",
-    "model": "Camry",
-    "trim": "XLE"
-  },
-  {
     "id": 2,
-    "year": 2022,
-    "make": "Honda",
-    "model": "Accord",
-    "trim": "Sport"
-  },
-  {
-    "id": 3,
     "year": 1999,
-    "make": "Tiguan",
-    "model": "Volkswaegen",
-    "trim": "XL"
-  },
-  {
-    "id": 4,
-    "year": 2007,
-    "make": "Golf",
-    "model": "Volkswaegen",
-    "trim": "WWW"
-  },
-  {
-    "id": 5,
-    "year": 1004,
-    "make": "Tokyo",
-    "model": "Blaugh",
-    "trim": "dfri"
-  },
-  {
-    "id": 6,
-    "year": 1999,
-    "make": "Tokyo",
-    "model": "Blaugh",
-    "trim": "cbfehu"
+    "make": "Audi",
+    "model": "blaugh",
+    "trim": "123"
   }
 ]
