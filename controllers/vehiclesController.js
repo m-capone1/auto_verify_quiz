@@ -1,31 +1,51 @@
-import fs from "node:fs";
-
+import fs from "node:fs/promises";
 const jsonPath = "./data/vehicles.json";
+
+const readVehiclesFromFile = async () => {
+  try {
+    const data = await fs.readFile(jsonPath, "utf8");
+    return JSON.parse(data);
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+};
+
+const writeVehiclesToFile = async (vehicles) => {
+  try {
+    await fs.writeFile(jsonPath, JSON.stringify(vehicles, null, 2), "utf8");
+  } catch (err) {
+    console.error("Error writing to file:", err);
+    throw new Error(`Unable to write file: ${err.message}`);
+  }
+};
+
+const validateVehicleInput = (year, make, model, trim) => {
+  const errors = [];
+  if (!year || typeof year !== "number" || year < 1900)
+    errors.push("Invalid year");
+  if (!make || typeof make !== "string" || make.trim() === "")
+    errors.push("Invalid make");
+  if (!model || typeof model !== "string" || model.trim() === "")
+    errors.push("Invalid model");
+  if (!trim || typeof trim !== "string" || trim.trim() === "")
+    errors.push("Invalid trim");
+  return errors.length > 0 ? errors.join(", ") : null;
+};
 
 const addVehicle = async (req, res) => {
   try {
     const { year, make, model, trim } = req.body;
 
-    if (!year || !make || !model || !trim) {
+    const validationError = validateVehicleInput(year, make, model, trim);
+    if (validationError) {
       return res.status(400).json({
-        error: "Missing required fields",
-        message:
-          "Please provide year, make, model, and trim in the request body.",
+        error: "Validation Error",
+        message: validationError,
       });
     }
 
-    let vehicles = [];
-
-    try {
-      const vehiclesData = await fs.readFileSync(jsonPath, "utf8");
-      vehicles = JSON.parse(vehiclesData);
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({
-        error: "Unable to read file.",
-        message: err.message,
-      });
-    }
+    const vehicles = await readVehiclesFromFile();
 
     const newVehicleId =
       vehicles.length > 0 ? vehicles[vehicles.length - 1].id + 1 : 1;
@@ -39,46 +59,28 @@ const addVehicle = async (req, res) => {
     };
 
     vehicles.push(newVehicle);
+    await writeVehiclesToFile(vehicles);
 
-    try {
-      fs.writeFile(jsonPath, JSON.stringify(vehicles, null, 2), (err) => {
-        return res.status(201).json(newVehicle);
-      });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({
-        error: "Unable to read file.",
-        message: err.message,
-      });
-    }
+    res.status(201).json(newVehicle);
   } catch (e) {
+    console.error(e);
     res.status(500).json({
-      message: "Internal Server Error. Unable to add vehicle.",
-      error: e,
+      error: "Internal Server Error",
+      message: e.message,
     });
   }
 };
 
 const getVehicles = async (req, res) => {
   try {
-    let vehicles = [];
+    const vehicles = await readVehiclesFromFile();
 
-    try {
-      const data = await fs.readFileSync(jsonPath, "utf8");
-      vehicles = JSON.parse(data);
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({
-        error: "Unable to read file.",
-        message: err.message,
-      });
-    }
-
-    res.status(200).json({ vehicles });
+    res.status(200).json(vehicles);
   } catch (e) {
+    console.error(e);
     res.status(500).json({
-      message: "Internal Server Error. Unable to get vehicle list.",
-      error: e,
+      error: "Internal Server Error",
+      message: e.message,
     });
   }
 };
@@ -88,73 +90,45 @@ const updateVehicle = async (req, res) => {
     const { year, make, model, trim } = req.body;
     const vehicleId = parseInt(req.params.id);
 
-    if (!year || !make || !model || !trim || !vehicleId) {
+    const validationError = validateVehicleInput(year, make, model, trim);
+    if (validationError) {
       return res.status(400).json({
-        error: e,
-        message:
-          "Missing required fields. Please provide year, make, model, and trim in the request body.",
+        error: "Validation Error",
+        message: validationError,
       });
     }
 
-    let vehicles = [];
-
-    try {
-      const vehiclesData = await fs.readFileSync(jsonPath, "utf8");
-      vehicles = JSON.parse(vehiclesData);
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({
-        error: "Unable to read file.",
-        message: err.message,
+    if (!vehicleId) {
+      return res.status(400).json({
+        error: "Missing vehicle ID.",
+        message: "Please provide the vehicle ID as a request parameter.",
       });
     }
 
-    const updateVehicle = {
-      id: vehicleId,
-      year,
-      make,
-      model,
-      trim,
-    };
+    const vehicles = await readVehiclesFromFile();
 
-    const findVehicle = vehicles.find((vehicle) => vehicle.id === vehicleId);
+    const findVehicleIndex = vehicles.findIndex(
+      (vehicle) => vehicle.id === vehicleId
+    );
 
-    if (!findVehicle) {
+    if (findVehicleIndex === -1) {
       return res.status(404).json({
         error: "Vehicle not found.",
         message: `Vehicle with ID ${vehicleId} not found.`,
       });
     }
 
-    let vehicleFilter = [];
-    vehicles.forEach((vehicle) => {
-      if (vehicle.id !== vehicleId) {
-        vehicleFilter.push(vehicle);
-      } else {
-        vehicleFilter.push(updateVehicle);
-      }
+    vehicles[findVehicleIndex] = { id: vehicleId, year, make, model, trim };
+
+    await writeVehiclesToFile(vehicles);
+    res.status(200).json(vehicles[findVehicleIndex]);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({
+      error: "Internal Server Error",
+      message: e.message,
     });
-
-    fs.writeFile(
-      jsonPath,
-      JSON.stringify(vehicleFilter, null, 2),
-      "utf8",
-      (err) => {
-        if (err) {
-          console.error("Error writing to file:", err);
-          return res.status(500).json({
-            error: "Unable to write to file.",
-            message: err.message,
-          });
-        }
-
-        return res.status(200).json({
-          message: `Successfully updated vehicle with ID ${vehicleId}.`,
-          vehicle: updateVehicle,
-        });
-      }
-    );
-  } catch (e) {}
+  }
 };
 
 const deleteVehicle = async (req, res) => {
@@ -163,24 +137,12 @@ const deleteVehicle = async (req, res) => {
 
     if (!vehicleId) {
       return res.status(400).json({
-        error: e,
-        message:
-          "Missing vehicle ID. Please provide the vehicle ID as a request parameter.",
+        error: "Missing vehicle ID.",
+        message: "Please provide the vehicle ID as a request parameter.",
       });
     }
 
-    let vehicles = [];
-
-    try {
-      const vehiclesData = await fs.readFileSync(jsonPath, "utf8");
-      vehicles = JSON.parse(vehiclesData);
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({
-        error: "Unable to read file.",
-        message: err.message,
-      });
-    }
+    const vehicles = await readVehiclesFromFile();
 
     const findVehicle = vehicles.find((vehicle) => vehicle.id === vehicleId);
 
@@ -191,35 +153,17 @@ const deleteVehicle = async (req, res) => {
       });
     }
 
-    let vehicleFilter = [];
-    vehicles.forEach((vehicle) => {
-      if (vehicle.id !== vehicleId) {
-        vehicleFilter.push(vehicle);
-      }
-    });
-
-    fs.writeFile(
-      jsonPath,
-      JSON.stringify(vehicleFilter, null, 2),
-      "utf8",
-      (err) => {
-        if (err) {
-          console.error("Error writing to file:", err);
-          return res.status(500).json({
-            error: "Unable to write to file.",
-            message: err.message,
-          });
-        }
-
-        return res.status(200).json({
-          message: `Successfully deleted vehicle with ID ${vehicleId}.`,
-        });
-      }
+    const updatedVehicles = vehicles.filter(
+      (vehicle) => vehicle.id !== vehicleId
     );
+
+    await writeVehiclesToFile(updatedVehicles);
+    res.status(200).json();
   } catch (e) {
+    console.error(e);
     res.status(500).json({
-      message: "Internal Server Error. Unable to delete vehicle.",
-      error: e,
+      error: "Internal Server Error",
+      message: e.message,
     });
   }
 };

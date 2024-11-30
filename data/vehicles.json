@@ -1,23 +1,23 @@
 [
   {
-    "id": 2,
-    "year": 1999,
-    "make": "Audi",
-    "model": "blaugh",
-    "trim": "123"
+    "id": 1,
+    "make": "Toyota",
+    "model": "Camry",
+    "year": 2021,
+    "trim": "LE"
   },
   {
     "id": 2,
-    "year": 1999,
-    "make": "Audi",
-    "model": "blaugh",
-    "trim": "123"
+    "make": "Honda",
+    "model": "Civic",
+    "year": 2020,
+    "trim": "EX"
   },
   {
     "id": 3,
-    "year": 2009,
-    "make": "Volkswaegen",
-    "model": "blaugh",
-    "trim": "123"
+    "make": "Ford",
+    "model": "Mustang",
+    "year": 2022,
+    "trim": "GT"
   }
 ]
