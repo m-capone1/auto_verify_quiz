@@ -1,17 +1,17 @@
 # Vehicle Management Service API
 
-This Vehicle management service API supports CRUD operations for an inventory of vehicles.This Vehicle Management Service API supports CRUD operations for managing an inventory of vehicles.
+This Vehicle management service API supports CRUD operations for an inventory of vehicles.
 
 ### Features
 
-- Add new vehicles to the inventory.
-- Retrieve details about vehicles.
-- Update existing vehicle information.
-- Delete vehicles from the inventory.
+- Add a new vehicle to the inventory.
+- Retrieve a list of all current vehicles in the inventory.
+- Update the information of an existing vehicle.
+- Delete a vehicle from the inventory.
 
 ## Installation and Setup
 
-1. Clone the github repository to run it on your local machine. Then navigate to the repository directory:
+1. Clone the GitHub repository to run it on your local machine. Then navigate to the repository directory:
 
 ```bash
 git clone <repository-url>
@@ -32,8 +32,9 @@ node server.js
 
 ## API Endpoints
 
-This section will describe the curernt available endpoints:
-###Vehicles
+This section will describe the current available endpoints:
+
+### Vehicles
 
 1. Get all vehicles
 
@@ -97,4 +98,4 @@ This section will describe the curernt available endpoints:
 
 ## Future Considerations
 
-The API currently reads and writes data to a local JSON file for simplicity. In the future, integrating a database such as MySQL would be more applicable. The addition of a database will promote a more maintainable and scalable API, better suited for real production environments.
+The API currently reads and writes data to a local JSON file for simplicity. In the future, integrating a database such as MySQL would be more applicable. The addition of a database will promote a more maintainable and scalable API, which is more useful for a real production environment.
