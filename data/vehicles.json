@@ -15,9 +15,9 @@
   },
   {
     "id": 3,
+    "year": 2019,
     "make": "Ford",
     "model": "Mustang",
-    "year": 2022,
     "trim": "GT"
   }
 ]
