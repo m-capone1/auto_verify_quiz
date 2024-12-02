@@ -61,14 +61,6 @@ const updateVehicle = async (req, res) => {
     const { year, make, model, trim } = req.body;
     const vehicleId = parseInt(req.params.id);
 
-    const validationError = validateVehicleInput(year, make, model, trim);
-    if (validationError) {
-      return res.status(400).json({
-        error: "Validation Error",
-        message: validationError,
-      });
-    }
-
     if (!vehicleId) {
       return res.status(400).json({
         error: "Missing vehicle ID.",
@@ -86,6 +78,14 @@ const updateVehicle = async (req, res) => {
       return res.status(404).json({
         error: "Vehicle not found.",
         message: `Vehicle with ID ${vehicleId} not found.`,
+      });
+    }
+
+    const validationError = validateVehicleInput(year, make, model, trim);
+    if (validationError) {
+      return res.status(400).json({
+        error: "Validation Error",
+        message: validationError,
       });
     }
 
