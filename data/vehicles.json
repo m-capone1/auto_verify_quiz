@@ -19,5 +19,19 @@
     "make": "Ford",
     "model": "Mustang",
     "trim": "GT"
+  },
+  {
+    "id": 4,
+    "year": 2019,
+    "make": "Ford",
+    "model": "Mustang",
+    "trim": "GT"
+  },
+  {
+    "id": 5,
+    "year": 2019,
+    "make": "Ford",
+    "model": "Mustang",
+    "trim": "GTT"
   }
 ]

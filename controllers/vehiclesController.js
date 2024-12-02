@@ -1,37 +1,8 @@
-import fs from "node:fs/promises";
-const jsonPath = "./data/vehicles.json";
-
-const readVehiclesFromFile = async () => {
-  try {
-    const data = await fs.readFile(jsonPath, "utf8");
-    return JSON.parse(data);
-  } catch (err) {
-    console.error(err);
-    return [];
-  }
-};
-
-const writeVehiclesToFile = async (vehicles) => {
-  try {
-    await fs.writeFile(jsonPath, JSON.stringify(vehicles, null, 2), "utf8");
-  } catch (err) {
-    console.error("Error writing to file:", err);
-    throw new Error(`Unable to write file: ${err.message}`);
-  }
-};
-
-const validateVehicleInput = (year, make, model, trim) => {
-  const errors = [];
-  if (!year || typeof year !== "number" || year < 1900)
-    errors.push("Invalid year");
-  if (!make || typeof make !== "string" || make.trim() === "")
-    errors.push("Invalid make");
-  if (!model || typeof model !== "string" || model.trim() === "")
-    errors.push("Invalid model");
-  if (!trim || typeof trim !== "string" || trim.trim() === "")
-    errors.push("Invalid trim");
-  return errors.length > 0 ? errors.join(", ") : null;
-};
+import {
+  readVehiclesFromFile,
+  writeVehiclesToFile,
+} from "../utility/fileServices.js";
+import { validateVehicleInput } from "../utility/validation.js";
 
 const addVehicle = async (req, res) => {
   try {
@@ -158,7 +129,7 @@ const deleteVehicle = async (req, res) => {
     );
 
     await writeVehiclesToFile(updatedVehicles);
-    res.status(200).json();
+    res.status(200).json({ message: "Vehicle was successfully deleted." });
   } catch (e) {
     console.error(e);
     res.status(500).json({
